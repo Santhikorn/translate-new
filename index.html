@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>เว็บแปลภาษา</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', 'Prompt', Arial, sans-serif;
+            background: #f6f1e7 url('https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=1200&q=80') no-repeat center center;
+            background-size: cover;
+            margin: 0;
+            min-height: 100vh;
+            font-size: 1.25em;
+        }
+        .container {
+            background: rgba(255,255,255,0.98);
+            max-width: 800px;
+            margin: 60px auto 0 auto;
+            border-radius: 24px;
+            box-shadow: 0 12px 36px 0 rgba(31, 38, 135, 0.18), 0 1.5px 8px #e2d6c2;
+            padding: 60px 56px 48px 56px;
+            border: 1.5px solid #e2d6c2;
+            position: relative;
+            overflow: hidden;
+        }
+        .container::before {
+            content: '';
+            position: absolute;
+            left: -60px;
+            top: -60px;
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, #f9e7c2 60%, transparent 100%);
+            opacity: 0.5;
+            z-index: 0;
+        }
+        .container::after {
+            content: '';
+            position: absolute;
+            right: -60px;
+            bottom: -60px;
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, #e2d6c2 60%, transparent 100%);
+            opacity: 0.4;
+            z-index: 0;
+        }
+        h1 {
+            text-align: center;
+            color: #7c5e2c;
+            font-family: 'Georgia', serif;
+            margin-bottom: 28px;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 8px #e2d6c2;
+            font-size: 2.2em;
+            z-index: 1;
+            position: relative;
+        }
+        .book-icon {
+            display: block;
+            margin: 0 auto 18px auto;
+            width: 60px;
+            height: 60px;
+        }
+        label {
+            color: #7c5e2c;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 6px;
+            margin-top: 18px;
+            font-size: 1em;
+            z-index: 1;
+            position: relative;
+        }
+        .lang-row {
+            display: flex;
+            gap: 16px;
+            align-items: flex-end;
+            margin-bottom: 0;
+        }
+        .lang-col {
+            flex: 1;
+            min-width: 0;
+        }
+        .swap-btn {
+            background: #fffbe6;
+            border: 1.5px solid #bfa46a;
+            color: #7c5e2c;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            margin-top: 30px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px #e2d6c2;
+            transition: background 0.2s, color 0.2s;
+        }
+        .swap-btn:hover {
+            background: #bfa46a;
+            color: #fffbe6;
+        }
+        input[type="text"].lang-search {
+            width: 60%;
+            padding: 4px 8px;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            border-radius: 8px;
+            border: 1px solid #e2d6c2;
+            background: #f9f6f1;
+            transition: border 0.2s;
+        }
+        input[type="text"].lang-search:focus {
+            border: 1.5px solid #bfa46a;
+            outline: none;
+        }
+        select, textarea {
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid #e2d6c2;
+            padding: 10px;
+            font-size: 1.25em;
+            background: #f9f6f1;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            transition: border 0.2s;
+        }
+        select:focus, textarea:focus {
+            border: 1.5px solid #bfa46a;
+            outline: none;
+        }
+        textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+        button {
+            background: linear-gradient(90deg, #bfa46a 0%, #e2d6c2 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 0;
+            width: 100%;
+            font-size: 1.65em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 18px;
+            box-shadow: 0 2px 8px #e2d6c2;
+            transition: background 0.2s, color 0.2s;
+            z-index: 1;
+            position: relative;
+        }
+        button:hover {
+            background: linear-gradient(90deg, #7c5e2c 0%, #bfa46a 100%);
+            color: #fffbe6;
+        }
+        #result, #synonyms {
+            margin-top: 22px;
+            padding: 18px;
+            border: 1.5px solid #e2d6c2;
+            border-radius: 12px;
+            min-height: 40px;
+            background: #fffbe6;
+            color: #7c5e2c;
+            font-size: 1.62em;
+            box-shadow: 0 1px 8px #e2d6c2;
+            z-index: 1;
+            position: relative;
+        }
+        #result {
+            font-size: 1.875em;
+            font-weight: bold;
+            background: #f9f6f1;
+        }
+        #synonyms {
+            font-size: 1.25em;
+            margin-top: 10px;
+            background: #f6f1e7;
+        }
+        @media (max-width: 900px) {
+            .container {
+                max-width: 98vw;
+                padding: 24px 2vw 24px 2vw;
+            }
+            .lang-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            .swap-btn {
+                margin: 10px auto 10px auto;
+            }
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 18px 2vw 18px 2vw;
+                margin-top: 18px;
+            }
+            h1 {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <svg class="book-icon" viewBox="0 0 64 64" fill="none">
+            <rect x="8" y="12" width="48" height="40" rx="6" fill="#fffbe6" stroke="#bfa46a" stroke-width="2"/>
+            <rect x="16" y="20" width="32" height="24" rx="3" fill="#f9f6f1" stroke="#e2d6c2" stroke-width="1.5"/>
+            <rect x="20" y="24" width="24" height="16" rx="2" fill="#fff" stroke="#e2d6c2" stroke-width="1"/>
+            <path d="M16 20 Q32 32 48 20" stroke="#bfa46a" stroke-width="1.5" fill="none"/>
+        </svg>
+        <h1>📚 เว็บแปลภาษา (Translate Any Language)</h1>
+        <form id="translateForm">
+            <div class="lang-row">
+                <div class="lang-col">
+                    <label for="sourceLang">เลือกภาษาต้นทาง:</label>
+                    <input type="text" id="sourceLangSearch" class="lang-search" placeholder="ค้นหาภาษา...">
+                    <select id="sourceLang" required>
+                        <option value="auto">ตรวจจับอัตโนมัติ</option>
+                        <option value="en">อังกฤษ (English)</option>
+                        <option value="th">ไทย (Thai)</option>
+                        <option value="zh">จีน (Chinese)</option>
+                        <option value="ja">ญี่ปุ่น (Japanese)</option>
+                        <option value="fr">ฝรั่งเศส (French)</option>
+                        <option value="de">เยอรมัน (German)</option>
+                        <option value="es">สเปน (Spanish)</option>
+                        <option value="it">อิตาลี (Italian)</option>
+                        <option value="ru">รัสเซีย (Russian)</option>
+                        <option value="ko">เกาหลี (Korean)</option>
+                        <option value="pt">โปรตุเกส (Portuguese)</option>
+                        <option value="ar">อาหรับ (Arabic)</option>
+                        <option value="hi">ฮินดี (Hindi)</option>
+                        <option value="id">อินโดนีเซีย (Indonesian)</option>
+                        <option value="ms">มาเลย์ (Malay)</option>
+                        <option value="vi">เวียดนาม (Vietnamese)</option>
+                        <option value="tr">ตุรกี (Turkish)</option>
+                        <option value="pl">โปแลนด์ (Polish)</option>
+                        <option value="nl">ดัตช์ (Dutch)</option>
+                        <option value="sv">สวีเดน (Swedish)</option>
+                        <option value="fi">ฟินแลนด์ (Finnish)</option>
+                        <option value="no">นอร์เวย์ (Norwegian)</option>
+                        <option value="da">เดนมาร์ก (Danish)</option>
+                        <option value="he">ฮิบรู (Hebrew)</option>
+                        <option value="el">กรีก (Greek)</option>
+                        <option value="cs">เช็ก (Czech)</option>
+                        <option value="hu">ฮังการี (Hungarian)</option>
+                        <option value="ro">โรมาเนีย (Romanian)</option>
+                        <option value="sk">สโลวัก (Slovak)</option>
+                        <option value="uk">ยูเครน (Ukrainian)</option>
+                        <option value="bg">บัลแกเรีย (Bulgarian)</option>
+                        <option value="hr">โครเอเชีย (Croatian)</option>
+                        <option value="sr">เซอร์เบีย (Serbian)</option>
+                        <option value="lt">ลิทัวเนีย (Lithuanian)</option>
+                        <option value="lv">ลัตเวีย (Latvian)</option>
+                        <option value="et">เอสโตเนีย (Estonian)</option>
+                        <option value="sl">สโลวีเนีย (Slovenian)</option>
+                        <option value="fa">เปอร์เซีย (Persian)</option>
+                        <option value="bn">เบงกาลี (Bengali)</option>
+                        <option value="ta">ทมิฬ (Tamil)</option>
+                        <option value="te">เตลูกู (Telugu)</option>
+                        <option value="ml">มาลายาลัม (Malayalam)</option>
+                        <option value="mr">มราฐี (Marathi)</option>
+                        <option value="gu">คุชราต (Gujarati)</option>
+                        <option value="pa">ปัญจาบ (Punjabi)</option>
+                        <option value="ur">อูรดู (Urdu)</option>
+                        <option value="sw">สวาฮีลี (Swahili)</option>
+                        <option value="af">แอฟริกันส์ (Afrikaans)</option>
+                        <option value="zu">ซูลู (Zulu)</option>
+                        <option value="xh">โคซา (Xhosa)</option>
+                        <option value="so">โซมาลี (Somali)</option>
+                        <option value="am">อัมฮาริก (Amharic)</option>
+                        <option value="yo">โยรูบา (Yoruba)</option>
+                        <option value="ig">อิกโบ (Igbo)</option>
+                        <option value="ha">เฮาซา (Hausa)</option>
+                        <option value="my">พม่า (Burmese)</option>
+                        <option value="km">เขมร (Khmer)</option>
+                        <option value="lo">ลาว (Lao)</option>
+                        <option value="mn">มองโกเลีย (Mongolian)</option>
+                        <option value="si">สิงหล (Sinhala)</option>
+                        <option value="ne">เนปาล (Nepali)</option>
+                        <option value="ps">พาชตู (Pashto)</option>
+                        <option value="kk">คาซัค (Kazakh)</option>
+                        <option value="uz">อุซเบก (Uzbek)</option>
+                        <option value="az">อาเซอร์ไบจาน (Azerbaijani)</option>
+                        <option value="ka">จอร์เจีย (Georgian)</option>
+                        <option value="hy">อาร์เมเนีย (Armenian)</option>
+                        <option value="sq">แอลเบเนีย (Albanian)</option>
+                        <option value="bs">บอสเนีย (Bosnian)</option>
+                        <option value="mk">มาซิโดเนีย (Macedonian)</option>
+                        <option value="ga">ไอริช (Irish)</option>
+                        <option value="cy">เวลส์ (Welsh)</option>
+                        <option value="mt">มอลตา (Maltese)</option>
+                        <option value="is">ไอซ์แลนด์ (Icelandic)</option>
+                        <option value="lb">ลักเซมเบิร์ก (Luxembourgish)</option>
+                        <option value="eu">บาสก์ (Basque)</option>
+                        <option value="gl">กาลิเซีย (Galician)</option>
+                        <option value="ca">คาตาลัน (Catalan)</option>
+                        <option value="eo">เอสเปอแรนโต (Esperanto)</option>
+                        <option value="jv">ชวา (Javanese)</option>
+                        <option value="su">ซุนดา (Sundanese)</option>
+                        <option value="fil">ฟิลิปปินส์ (Filipino)</option>
+                        <option value="ceb">เซบูอาโน (Cebuano)</option>
+                        <option value="haw">ฮาวาย (Hawaiian)</option>
+                        <option value="sm">ซามัว (Samoan)</option>
+                        <option value="to">ตองกา (Tongan)</option>
+                        <option value="fj">ฟิจิ (Fijian)</option>
+                        <option value="mg">มาลากาซี (Malagasy)</option>
+                        <option value="st">โซโท (Sotho)</option>
+                        <option value="tn">เซตสวานา (Tswana)</option>
+                        <option value="ny">เชวา (Chichewa)</option>
+                        <option value="rw">คินยารวันดา (Kinyarwanda)</option>
+                        <option value="rn">คิรุนดี (Kirundi)</option>
+                        <option value="ss">สวาซิ (Swati)</option>
+                        <option value="ts">ชางา (Tsonga)</option>
+                        <option value="ve">เวนดา (Venda)</option>
+                        <option value="wo">วูลอฟ (Wolof)</option>
+                        <option value="yo">โยรูบา (Yoruba)</option>
+                        <option value="zu">ซูลู (Zulu)</option>
+                        <!-- ...add more as needed... -->
+                    </select>
+                </div>
+                <button type="button" class="swap-btn" id="swapLangBtn" title="สลับภาษา">&#8646;</button>
+                <div class="lang-col">
+                    <label for="targetLang">เลือกภาษาปลายทาง:</label>
+                    <input type="text" id="targetLangSearch" class="lang-search" placeholder="ค้นหาภาษา...">
+                    <select id="targetLang" required>
+                        <option value="en">อังกฤษ (English)</option>
+                        <option value="th">ไทย (Thai)</option>
+                        <option value="zh">จีน (Chinese)</option>
+                        <option value="ja">ญี่ปุ่น (Japanese)</option>
+                        <option value="fr">ฝรั่งเศส (French)</option>
+                        <option value="de">เยอรมัน (German)</option>
+                        <option value="es">สเปน (Spanish)</option>
+                        <option value="it">อิตาลี (Italian)</option>
+                        <option value="ru">รัสเซีย (Russian)</option>
+                        <option value="ko">เกาหลี (Korean)</option>
+                        <option value="pt">โปรตุเกส (Portuguese)</option>
+                        <option value="ar">อาหรับ (Arabic)</option>
+                        <option value="hi">ฮินดี (Hindi)</option>
+                        <option value="id">อินโดนีเซีย (Indonesian)</option>
+                        <option value="ms">มาเลย์ (Malay)</option>
+                        <option value="vi">เวียดนาม (Vietnamese)</option>
+                        <option value="tr">ตุรกี (Turkish)</option>
+                        <option value="pl">โปแลนด์ (Polish)</option>
+                        <option value="nl">ดัตช์ (Dutch)</option>
+                        <option value="sv">สวีเดน (Swedish)</option>
+                        <option value="fi">ฟินแลนด์ (Finnish)</option>
+                        <option value="no">นอร์เวย์ (Norwegian)</option>
+                        <option value="da">เดนมาร์ก (Danish)</option>
+                        <option value="he">ฮิบรู (Hebrew)</option>
+                        <option value="el">กรีก (Greek)</option>
+                        <option value="cs">เช็ก (Czech)</option>
+                        <option value="hu">ฮังการี (Hungarian)</option>
+                        <option value="ro">โรมาเนีย (Romanian)</option>
+                        <option value="sk">สโลวัก (Slovak)</option>
+                        <option value="uk">ยูเครน (Ukrainian)</option>
+                        <option value="bg">บัลแกเรีย (Bulgarian)</option>
+                        <option value="hr">โครเอเชีย (Croatian)</option>
+                        <option value="sr">เซอร์เบีย (Serbian)</option>
+                        <option value="lt">ลิทัวเนีย (Lithuanian)</option>
+                        <option value="lv">ลัตเวีย (Latvian)</option>
+                        <option value="et">เอสโตเนีย (Estonian)</option>
+                        <option value="sl">สโลวีเนีย (Slovenian)</option>
+                        <option value="fa">เปอร์เซีย (Persian)</option>
+                        <option value="bn">เบงกาลี (Bengali)</option>
+                        <option value="ta">ทมิฬ (Tamil)</option>
+                        <option value="te">เตลูกู (Telugu)</option>
+                        <option value="ml">มาลายาลัม (Malayalam)</option>
+                        <option value="mr">มราฐี (Marathi)</option>
+                        <option value="gu">คุชราต (Gujarati)</option>
+                        <option value="pa">ปัญจาบ (Punjabi)</option>
+                        <option value="ur">อูรดู (Urdu)</option>
+                        <option value="sw">สวาฮีลี (Swahili)</option>
+                        <option value="af">แอฟริกันส์ (Afrikaans)</option>
+                        <option value="zu">ซูลู (Zulu)</option>
+                        <option value="xh">โคซา (Xhosa)</option>
+                        <option value="so">โซมาลี (Somali)</option>
+                        <option value="am">อัมฮาริก (Amharic)</option>
+                        <option value="yo">โยรูบา (Yoruba)</option>
+                        <option value="ig">อิกโบ (Igbo)</option>
+                        <option value="ha">เฮาซา (Hausa)</option>
+                        <option value="my">พม่า (Burmese)</option>
+                        <option value="km">เขมร (Khmer)</option>
+                        <option value="lo">ลาว (Lao)</option>
+                        <option value="mn">มองโกเลีย (Mongolian)</option>
+                        <option value="si">สิงหล (Sinhala)</option>
+                        <option value="ne">เนปาล (Nepali)</option>
+                        <option value="ps">พาชตู (Pashto)</option>
+                        <option value="kk">คาซัค (Kazakh)</option>
+                        <option value="uz">อุซเบก (Uzbek)</option>
+                        <option value="az">อาเซอร์ไบจาน (Azerbaijani)</option>
+                        <option value="ka">จอร์เจีย (Georgian)</option>
+                        <option value="hy">อาร์เมเนีย (Armenian)</option>
+                        <option value="sq">แอลเบเนีย (Albanian)</option>
+                        <option value="bs">บอสเนีย (Bosnian)</option>
+                        <option value="mk">มาซิโดเนีย (Macedonian)</option>
+                        <option value="ga">ไอริช (Irish)</option>
+                        <option value="cy">เวลส์ (Welsh)</option>
+                        <option value="mt">มอลตา (Maltese)</option>
+                        <option value="is">ไอซ์แลนด์ (Icelandic)</option>
+                        <option value="lb">ลักเซมเบิร์ก (Luxembourgish)</option>
+                        <option value="eu">บาสก์ (Basque)</option>
+                        <option value="gl">กาลิเซีย (Galician)</option>
+                        <option value="ca">คาตาลัน (Catalan)</option>
+                        <option value="eo">เอสเปอแรนโต (Esperanto)</option>
+                        <option value="jv">ชวา (Javanese)</option>
+                        <option value="su">ซุนดา (Sundanese)</option>
+                        <option value="fil">ฟิลิปปินส์ (Filipino)</option>
+                        <option value="ceb">เซบูอาโน (Cebuano)</option>
+                        <option value="haw">ฮาวาย (Hawaiian)</option>
+                        <option value="sm">ซามัว (Samoan)</option>
+                        <option value="to">ตองกา (Tongan)</option>
+                        <option value="fj">ฟิจิ (Fijian)</option>
+                        <option value="mg">มาลากาซี (Malagasy)</option>
+                        <option value="st">โซโท (Sotho)</option>
+                        <option value="tn">เซตสวานา (Tswana)</option>
+                        <option value="ny">เชวา (Chichewa)</option>
+                        <option value="rw">คินยารวันดา (Kinyarwanda)</option>
+                        <option value="rn">คิรุนดี (Kirundi)</option>
+                        <option value="ss">สวาซิ (Swati)</option>
+                        <option value="ts">ชางา (Tsonga)</option>
+                        <option value="ve">เวนดา (Venda)</option>
+                        <option value="wo">วูลอฟ (Wolof)</option>
+                        <option value="yo">โยรูบา (Yoruba)</option>
+                        <option value="zu">ซูลู (Zulu)</option>
+                        <!-- ...add more as needed... -->
+                    </select>
+                </div>
+            </div>
+            <label for="text">ข้อความที่ต้องการแปล:</label>
+            <textarea id="text" required placeholder="พิมพ์ข้อความที่ต้องการแปล..."></textarea>
+            <button type="button" id="geminiBtn">แปลภาษา</button>
+        </form>
+        <div id="result"></div>
+        <div id="synonyms"></div>
+    </div>
+    <script>
+        // ฟังก์ชันค้นหาภาษาใน select
+        function filterSelectOptions(inputId, selectId) {
+            const input = document.getElementById(inputId);
+            const select = document.getElementById(selectId);
+            const options = Array.from(select.options);
+
+            input.addEventListener('input', function() {
+                const filter = input.value.trim().toLowerCase();
+                select.innerHTML = '';
+                options.forEach(option => {
+                    if (
+                        option.text.toLowerCase().includes(filter) ||
+                        option.value.toLowerCase().includes(filter)
+                    ) {
+                        select.appendChild(option.cloneNode(true));
+                    }
+                });
+            });
+        }
+
+        filterSelectOptions('sourceLangSearch', 'sourceLang');
+        filterSelectOptions('targetLangSearch', 'targetLang');
+
+        // ปุ่มสลับภาษา
+        document.getElementById('swapLangBtn').addEventListener('click', function() {
+            const sourceSelect = document.getElementById('sourceLang');
+            const targetSelect = document.getElementById('targetLang');
+            const sourceIndex = sourceSelect.selectedIndex;
+            const targetIndex = targetSelect.selectedIndex;
+            // สลับค่าที่เลือก
+            sourceSelect.selectedIndex = targetIndex;
+            targetSelect.selectedIndex = sourceIndex;
+        });
+
+        // Gemini AI Translate
+        document.getElementById('geminiBtn').addEventListener('click', async function() {
+            const text = document.getElementById('text').value;
+            let source = document.getElementById('sourceLang').value;
+            const target = document.getElementById('targetLang').value;
+            const resultDiv = document.getElementById('result');
+            const synonymsDiv = document.getElementById('synonyms');
+            if (!text) {
+                resultDiv.textContent = "กรุณากรอกข้อความ";
+                synonymsDiv.textContent = "";
+                return;
+            }
+            resultDiv.textContent = "กำลังแปลด้วย Gemini AI...";
+            synonymsDiv.textContent = "";
+
+            const GEMINI_API_KEY = "AIzaSyA35LCCnO0RQm4zhBJrZZPZSRIJoQvd610";
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+
+            // ตรวจจับภาษาอัตโนมัติถ้าเลือก auto
+            let detectLangPrompt = "";
+            if (source === "auto") {
+                detectLangPrompt = `Detect the language of the following text and then translate it to ${target}. 
+Return only the translation and a list of synonyms (words or phrases with similar meaning) in ${target}.
+Format your response as:
+Translation: <translation>
+Synonyms: <comma-separated synonyms>
+Text: "${text}"`;
+            } else {
+                detectLangPrompt = `Translate the following text from ${source} to ${target} and provide:
+- The translation only
+- A list of synonyms (words or phrases with similar meaning) in ${target}
+Format your response as:
+Translation: <translation>
+Synonyms: <comma-separated synonyms>
+Text: "${text}"`;
+            }
+
+            try {
+                const res = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: detectLangPrompt }] }]
+                    })
+                });
+                const data = await res.json();
+                if (
+                    data &&
+                    data.candidates &&
+                    data.candidates[0] &&
+                    data.candidates[0].content &&
+                    data.candidates[0].content.parts &&
+                    data.candidates[0].content.parts[0].text
+                ) {
+                    // แยกผลลัพธ์ตามหัวข้อ
+                    const response = data.candidates[0].content.parts[0].text.trim();
+                    const translationMatch = response.match(/Translation:\s*(.*)/i);
+                    const synonymsMatch = response.match(/Synonyms:\s*(.*)/i);
+
+                    resultDiv.textContent = translationMatch ? translationMatch[1].trim() : "";
+                    synonymsDiv.textContent = synonymsMatch ? "คำที่มีความหมายใกล้เคียง: " + synonymsMatch[1].trim() : "";
+                } else {
+                    resultDiv.textContent = "เกิดข้อผิดพลาดในการแปลด้วย Gemini AI";
+                    synonymsDiv.textContent = "";
+                }
+            } catch (err) {
+                resultDiv.textContent = "เกิดข้อผิดพลาดในการเชื่อมต่อ Gemini AI";
+                synonymsDiv.textContent = "";
+            }
+        });
+    </script>
+</body>
+</html>
